@@ -1,0 +1,23 @@
+.comments-container {
+  display: none;
+}
+
+.show {
+  display: block;
+}
+
+.post {
+  margin-bottom: 15px;
+}
+
+.remove-comment {
+  margin-left: 5px;
+}
+
+.add-comment {
+  margin-left: 10px;
+}
+
+#post-user {
+  margin-top: 10px;
+}

@@ -1,0 +1,27 @@
+{
+  "name": "project-reddit-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node app/server.js",
+    "client": "node start-client.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autocomplete": "0.0.1",
+    "body-parser": "^1.18.2",
+    "finalhandler": "latest",
+    "http": "latest",
+    "querystring": "^0.2.0",
+    "router": "^1.3.2",
+    "serve-static": "latest"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.1"
+  }
+}
