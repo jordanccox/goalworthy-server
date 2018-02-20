@@ -29,6 +29,6 @@ myRouter.post('/v1/me/goals/:goalId/accept', function(request,response) {
   let goal = goals.find((goal)=> {
     return goal.id == goalId
   })
-  user.acceptedGoals.push(postBody); 
+  user.acceptedGoals.push(goal); 
   response.end();
 });
