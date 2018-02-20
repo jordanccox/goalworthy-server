@@ -27,7 +27,7 @@ myRouter.get('/v1/goals', function(request,response) {
 // See how the router automatically handled the path value and extracted the value for me to use?  How nice!
 myRouter.post('/v1/me/goals/:goalId/accept', function(request,response) {
   let goal = goals.find((goal)=> {
-    return goal.id == goalId
+    return goal.id == request.params.goalId
   })
   user.acceptedGoals.push(goal); 
   response.end();
