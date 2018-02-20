@@ -1,18 +1,12 @@
 var http = require('http');
-var serveStatic = require('serve-static')
-var finalHandler = require('finalhandler')
-// Serve up public folder as-is
-var serve = serveStatic('public', {'index': ['index.html', 'index.htm']})
 
 // State holding variables
-var posts = [];
+var goals = [];
+var user = {};
+var categories = [];
 
 http.createServer(function (request, response) {
   const { headers, method, url } = request;
-  // Serve all the static content (html, css, images, etc.)
-  if (!url.includes('api')) {
-    serve(request,response, finalHandler(request,response));
-  }
   let body = [];
   request.on('error', (err) => {
     // Log any errors for now to the console to debug
@@ -32,27 +26,24 @@ http.createServer(function (request, response) {
     // Offload the routing and handling of the api calls to helper function
     handleApiRequest(body,request,response);
   });
-}).listen(8080);
+}).listen(3001);
 
 function handleApiRequest(body, request,response) {
   // Set the default headers on the response
   response.statusCode = 200;
   response.setHeader('Content-Type', 'application/json');
   if (request.method === "GET") {
-    if (request.url === "/api/posts") {
-      response.end(JSON.stringify(posts));
-    } else if (request.url.search('/\/api\/posts\/*\/comments/')) {
-      var postNumber = Number(request.url.match('/\d+$/'));
-      response.end(JSON.stringify(posts[postNumber].comments));
-    }
+    if (request.url === "/v1/goals") {
+      response.end(JSON.stringify(goals));
+    } 
   } else if (request.method === "POST") {
     var postBody = JSON.parse(body);
-    if (request.url === "/api/posts") {
-      posts.push(postBody);
-      response.end();
-    } else if (request.url.search('/\/api\/posts\/*\/comments/')) {
-      var postNumber = Number(request.url.match('/\d+$/'));
-      posts[postNumber].comments.push(postBody); 
+    if (request.url.search('/\/v1\/me\/goals\/*\/accept/')) {
+      var goalId = Number(request.url.match('/\d+$/'));
+      let goal = goals.find((goal)=> {
+        return goal.id == goalId
+      })
+      user.acceptedGoals.push(postBody); 
       response.end();
     }
   }

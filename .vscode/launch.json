@@ -7,8 +7,14 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Reddit Server",
-            "program": "${workspaceRoot}/app/server-without-react.js"
+            "name": "Goalworthy API",
+            "program": "${workspaceRoot}/app/server.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Goalworthy API w/out Libraries",
+            "program": "${workspaceRoot}/app/server-without-libraries.js"
         }
     ]
 }
