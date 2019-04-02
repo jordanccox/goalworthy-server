@@ -26,7 +26,20 @@ http.createServer(function (request, response) {
     // Offload the routing and handling of the api calls to helper function
     handleApiRequest(body,request,response);
   });
-}).listen(3001);
+}).listen(3001, ()=> {
+  fs.readFile("goals.json","utf8",(err,data) => {
+    goals = JSON.parse(data);
+  });
+  
+  fs.readFile("users.json","utf8",(err,data) => {
+    users = JSON.parse(data);
+    user = users[0];
+  });
+  
+  fs.readFile("categories.json","utf8",(err,data) => {
+    categories = JSON.parse(data);
+  });
+});
 
 function handleApiRequest(body, request,response) {
   // Set the default headers on the response
@@ -34,7 +47,7 @@ function handleApiRequest(body, request,response) {
   response.setHeader('Content-Type', 'application/json');
   if (request.method === "GET") {
     if (request.url === "/v1/goals") {
-      response.end(JSON.stringify(goals));
+      return response.end(JSON.stringify(goals));
     } 
   } else if (request.method === "POST") {
     var postBody = JSON.parse(body);

@@ -14,6 +14,7 @@
     "autocomplete": "0.0.1",
     "body-parser": "^1.18.2",
     "finalhandler": "latest",
+    "fs": "0.0.1-security",
     "http": "latest",
     "querystring": "^0.2.0",
     "router": "^1.3.2"
