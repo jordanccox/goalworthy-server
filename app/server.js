@@ -18,18 +18,13 @@ myRouter.use(bodyParser.json());
 http.createServer(function (request, response) {
   myRouter(request, response, finalHandler(request, response))
 }).listen(3001, () => {
-  fs.readFile("goals.json","utf8",(err,data) => {
-    goals = JSON.parse(data);
-  });
+  //Load dummy data into server memory for serving
+  goals = JSON.parse(fs.readFileSync("goals.json","utf-8"));
   
-  fs.readFile("users.json","utf8",(err,data) => {
-    users = JSON.parse(data);
-    user = users[0];
-  });
+  users = JSON.parse(fs.readFileSync("users.json","utf-8"));
+  user = users[0];
   
-  fs.readFile("categories.json","utf8",(err,data) => {
-    categories = JSON.parse(data);
-  });
+  categories = JSON.parse(fs.readFileSync("categories.json","utf-8"));
 });
 
 // Notice how much cleaner these endpoint handlers are...

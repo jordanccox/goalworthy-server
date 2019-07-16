@@ -28,18 +28,13 @@ http.createServer(function (request, response) {
     handleApiRequest(body,request,response);
   });
 }).listen(3001, ()=> {
-  fs.readFile("goals.json","utf8",(err,data) => {
-    goals = JSON.parse(data);
-  });
+  //Load dummy data into server memory for serving
+  goals = JSON.parse(fs.readFileSync("goals.json","utf-8"));
   
-  fs.readFile("users.json","utf8",(err,data) => {
-    users = JSON.parse(data);
-    user = users[0];
-  });
+  users = JSON.parse(fs.readFileSync("users.json","utf-8"));
+  user = users[0];
   
-  fs.readFile("categories.json","utf8",(err,data) => {
-    categories = JSON.parse(data);
-  });
+  categories = JSON.parse(fs.readFileSync("categories.json","utf-8"));
 });
 
 function handleApiRequest(body, request,response) {
@@ -47,17 +42,22 @@ function handleApiRequest(body, request,response) {
   response.statusCode = 200;
   response.setHeader('Content-Type', 'application/json');
   if (request.method === "GET") {
+    // Handle the Get endpoints
     if (request.url === "/v1/goals") {
       return response.end(JSON.stringify(goals));
     } 
   } else if (request.method === "POST") {
+    // Handle the POST endpoints
+    // Pull out body of request for processing
     var postBody = JSON.parse(body);
+    // Use regular expressions to pull out url param
     if (request.url.search('/\/v1\/me\/goals\/*\/accept/')) {
       var goalId = Number(request.url.match('/\d+$/'));
+      // Make sure goal exists
       let goal = goals.find((goal)=> {
         return goal.id == goalId
       })
-      user.acceptedGoals.push(postBody); 
+      user.acceptedGoals.push(goal); 
       return response.end();
     }
   }
