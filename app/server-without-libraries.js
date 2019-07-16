@@ -1,4 +1,5 @@
 var http = require('http');
+var fs = require('fs');
 
 // State holding variables
 var goals = [];
@@ -57,7 +58,7 @@ function handleApiRequest(body, request,response) {
         return goal.id == goalId
       })
       user.acceptedGoals.push(postBody); 
-      response.end();
+      return response.end();
     }
   }
 }

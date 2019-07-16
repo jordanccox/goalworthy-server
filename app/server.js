@@ -34,7 +34,7 @@ http.createServer(function (request, response) {
 
 // Notice how much cleaner these endpoint handlers are...
 myRouter.get('/v1/goals', function(request,response) {
-  response.end(JSON.stringify(goals));
+  return response.end(JSON.stringify(goals));
 });
 
 // See how i'm not having to build up the raw data in the body... body parser just gives me the whole thing as an object.
@@ -44,7 +44,7 @@ myRouter.post('/v1/me/goals/:goalId/accept', function(request,response) {
     return goal.id == request.params.goalId
   })
   user.acceptedGoals.push(goal); 
-  response.end();
+  return response.end();
 });
 
 myRouter.post('/v1/me/goals/:goalId/challenge/:userId', function(request,response) {
@@ -59,5 +59,5 @@ myRouter.post('/v1/me/goals/:goalId/challenge/:userId', function(request,respons
     return response.end("No goal with that ID found.")
   }
   challengedUser.challengedGoals.push(goal); 
-  response.end();
+  return response.end();
 });
