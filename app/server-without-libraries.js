@@ -28,12 +28,14 @@ http.createServer(function (request, response) {
     handleApiRequest(body,request,response);
   });
 }).listen(3001, ()=> {
-  //Load dummy data into server memory for serving
+  // Load dummy data into server memory for serving
   goals = JSON.parse(fs.readFileSync("goals.json","utf-8"));
   
+  // Load all users into users array and for now hardcode the first user to be "logged in"
   users = JSON.parse(fs.readFileSync("users.json","utf-8"));
   user = users[0];
   
+  // Load all categories from file
   categories = JSON.parse(fs.readFileSync("categories.json","utf-8"));
 });
 
