@@ -1,10 +1,10 @@
-var http = require('http');
-var fs = require('fs');
+const http = require('http');
+const fs = require('fs');
 
 // State holding variables
-var goals = [];
-var user = {};
-var categories = [];
+let goals = [];
+let user = {};
+let categories = [];
 
 http.createServer(function (request, response) {
   const { headers, method, url } = request;
@@ -51,10 +51,10 @@ function handleApiRequest(body, request,response) {
   } else if (request.method === "POST") {
     // Handle the POST endpoints
     // Pull out body of request for processing
-    var postBody = JSON.parse(body);
+    let postBody = JSON.parse(body);
     // Use regular expressions to pull out url param
     if (request.url.search('/\/v1\/me\/goals\/*\/accept/')) {
-      var goalId = Number(request.url.match('/\d+$/'));
+      let goalId = Number(request.url.match('/\d+$/'));
       // Make sure goal exists
       let goal = goals.find((goal)=> {
         return goal.id == goalId

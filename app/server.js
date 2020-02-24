@@ -1,18 +1,18 @@
-var http = require('http');
-var finalHandler = require('finalhandler');
-var queryString = require('querystring');
-var url = require('url');
-var Router = require('router');
-var bodyParser = require('body-parser');
-var fs = require('fs');
+const http = require('http');
+const finalHandler = require('finalhandler');
+const queryString = require('querystring');
+const url = require('url');
+const Router = require('router');
+const bodyParser = require('body-parser');
+const fs = require('fs');
 // State holding variables
-var goals = [];
-var user = {};
-var users = [];
-var categories = [];
+let goals = [];
+let user = {};
+let users = [];
+let categories = [];
 
 // Setup router
-var myRouter = Router();
+let myRouter = Router();
 myRouter.use(bodyParser.json());
 
 // This function is a bit simpler...
