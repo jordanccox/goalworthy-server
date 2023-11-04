@@ -36,7 +36,6 @@ http
 myRouter.get("/v1/goals", function (request, response) {
   // Get our query params from the query string
   const queryParams = queryString.parse(url.parse(request.url).query);
-  console.log(queryParams); // testing
 
   // Copy goals immutably
   const goalsCopy = goals.map((goal) => Object.assign({}, goal));
@@ -72,9 +71,9 @@ myRouter.get("/v1/goals", function (request, response) {
 
     return response.end(JSON.stringify(filteredGoals));
   }
-  
+
   // Return all our current goals by default 
-  return response.end(JSON.stringify(goals));
+  return response.end(JSON.stringify(goalsCopy));
 });
 
 // See how i'm not having to build up the raw data in the body... body parser just gives me the whole thing as an object.
@@ -84,8 +83,31 @@ myRouter.post("/v1/me/goals/:goalId/accept", function (request, response) {
   let goal = goals.find((goal) => {
     return goal.id == request.params.goalId;
   });
+  
+  // Handle goalId not found
+  if (!goal) {
+    response.statusCode = 400;
+    return response.end(`Error ${response.statusCode}: No goal found with id of ${request.params.goalId}`);
+  }
+
+  // Check for duplicates
+  if (user.acceptedGoals.find((goal) => goal.id == request.params.goalId)) {
+    return response.end("User has already accepted this goal.");
+  }
+
   // Add it to our logged in user's accepted goals
   user.acceptedGoals.push(goal);
+  const usersOverwrite = users.map(user => {
+    return { ...user };
+  });
+  usersOverwrite.shift();
+  usersOverwrite.unshift(user)
+  fs.writeFile('users.json', JSON.stringify(usersOverwrite), (err) => {
+    if (err) {
+      throw err;
+    }
+  });
+
   // No response needed other than a 200 success
   return response.end();
 });
