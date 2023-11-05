@@ -325,3 +325,39 @@ myRouter.get("/v1/categories", function (request, response) {
   // 200 success - return list of categories
   return response.end(JSON.stringify(categories));
 });
+
+// GET Goals in category
+myRouter.get("/v1/categories/:categoryId/goals", function(request, response) {
+  // Check categories exist
+  if (categories.length <= 0 || !categories) {
+    response.statusCode = 404;
+    return response.end(`Error ${response.statusCode}: No categories found.`)
+  }
+
+  // Check goals exist
+  if (goals.length <= 0 || !goals) {
+    response.statusCode = 404;
+    return response.end(`Error ${response.statusCode}: No goals found.`)
+  }
+
+  // Find category by id
+  const category = categories.find((category) => category.id == request.params.categoryId);
+
+  // Check category exists
+  if (!category) {
+    response.statusCode = 400;
+    return response.end(`Error ${response.statusCode}: Category with id ${request.params.categoryId} does not exist.`);
+  }
+
+  // Find goals in category
+  const categoryGoals = goals.filter((goal) => goal.categoryId == category.id);
+
+  // Check category has goals
+  if (!categoryGoals <= 0) {
+    response.statusCode = 400;
+    return response.end(`Error ${response.statusCode}: No goals exist in this category.`);
+  }
+
+  // 200 success
+  return response.end(JSON.stringify(categoryGoals));
+});
