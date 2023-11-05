@@ -82,7 +82,6 @@ myRouter.get("/v1/goals", function (request, response) {
 
 // User profile
 myRouter.get("/v1/me", function (request, response) {
-
   // 200 success
   if (!_.isEmpty(user)) {
     return response.end(JSON.stringify(user));
@@ -214,7 +213,9 @@ myRouter.post(
       challengedUser.acceptedGoals.find(
         (goal) => goal.id == request.params.goalId
       ) ||
-      challengedUser.achievedGoals.find((goal) => goal.id == request.params.goalId)
+      challengedUser.achievedGoals.find(
+        (goal) => goal.id == request.params.goalId
+      )
     ) {
       // 200 response, but nohing happens because user has already been challenged to do this goal, accepted this goal, or achieved this goal
       return response.end();
@@ -226,6 +227,61 @@ myRouter.post(
       return { ...user };
     });
     usersOverwrite.filter((user) => user.id !== challengedUser.id);
+    fs.writeFile("users.json", JSON.stringify(usersOverwrite), (err) => {
+      if (err) {
+        throw err;
+      }
+    });
+
+    // No response needed other than a 200 success
+    return response.end();
+  }
+);
+
+// Gift a goal
+myRouter.post(
+  "/v1/me/goals/:goalId/gift/:userId",
+  function (request, response) {
+    // Find goal from id in url in list of goals
+    const goal = goals.find((goal) => goal.id == request.params.goalId);
+
+    // Check that goal exists
+    if (!goal) {
+      response.statusCode = 400;
+      return response.end(
+        `Error ${response.statusCode}: No goal found with id of ${request.params.goalId}.`
+      );
+    }
+
+    // Find gifted user from userId and list of users
+    const giftedUser = users.find((user) => user.id == request.params.userId);
+
+    // Check gifted user exists
+    if (!giftedUser) {
+      response.statusCode = 400;
+      return response.end(
+        `Error ${response.statusCode}: No user found with id of ${request.params.userId}`
+      );
+    }
+
+    // If user has already accepted this goal, achieved this goal, or been gifted this goal, do nothing
+    if (
+      giftedUser.giftedGoals.find((goal) => goal.id == request.params.goalId) ||
+      giftedUser.acceptedGoals.find(
+        (goal) => goal.id == request.params.goalId
+      ) ||
+      giftedUser.achievedGoals.find((goal) => goal.id == request.params.goalId)
+    ) {
+      // 200 response, but nohing happens because user has already been gifted this goal, accepted this goal, or achieved this goal
+      return response.end();
+    }
+
+    // Add the goal to the gifted user
+    giftedUser.giftedGoals.push(goal);
+    const usersOverwrite = users.map((user) => {
+      return { ...user };
+    });
+    usersOverwrite.filter((user) => user.id !== giftedUser.id);
     fs.writeFile("users.json", JSON.stringify(usersOverwrite), (err) => {
       if (err) {
         throw err;

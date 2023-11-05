@@ -65,6 +65,16 @@
         "dateCreated": "2018-02-26T18:35:02.270Z"
       }
     ],
-    "giftedGoals": []
+    "giftedGoals": [
+      {
+        "id": "1",
+        "categoryId": "1",
+        "description": "Visit all 7 continents",
+        "upVotes": 100,
+        "downVotes": 10,
+        "imageUrl": "https://www.gstatic.com/webp/gallery/1.jpg",
+        "dateCreated": "2018-02-25T18:35:02.270Z"
+      }
+    ]
   }
 ]
