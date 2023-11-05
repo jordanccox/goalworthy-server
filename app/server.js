@@ -5,6 +5,7 @@ const url = require("url");
 const Router = require("router");
 const bodyParser = require("body-parser");
 const fs = require("fs");
+const _ = require("lodash");
 // State holding variables
 let goals = [];
 let user = {};
@@ -72,22 +73,39 @@ myRouter.get("/v1/goals", function (request, response) {
     return response.end(JSON.stringify(filteredGoals));
   }
 
-  // Return all our current goals by default 
+  // Return all our current goals by default
   return response.end(JSON.stringify(goalsCopy));
 });
 
 // See how i'm not having to build up the raw data in the body... body parser just gives me the whole thing as an object.
 // See how the router automatically handled the path value and extracted the value for me to use?  How nice!
+
+// User profile
+myRouter.get("/v1/me", function (request, response) {
+
+  // 200 success
+  if (!_.isEmpty(user)) {
+    return response.end(JSON.stringify(user));
+  }
+
+  // Default error
+  response.statusCode = 404;
+  return response.end(`Error ${response.statusCode}: User profile not found`);
+});
+
+// Accept a goal challenge
 myRouter.post("/v1/me/goals/:goalId/accept", function (request, response) {
   // Find goal from id in url in list of goals
   let goal = goals.find((goal) => {
     return goal.id == request.params.goalId;
   });
-  
+
   // Handle goalId not found
   if (!goal) {
     response.statusCode = 400;
-    return response.end(`Error ${response.statusCode}: No goal found with id of ${request.params.goalId}`);
+    return response.end(
+      `Error ${response.statusCode}: No goal found with id of ${request.params.goalId}`
+    );
   }
 
   // Check for duplicates
@@ -97,12 +115,12 @@ myRouter.post("/v1/me/goals/:goalId/accept", function (request, response) {
 
   // Add it to our logged in user's accepted goals
   user.acceptedGoals.push(goal);
-  const usersOverwrite = users.map(user => {
+  const usersOverwrite = users.map((user) => {
     return { ...user };
   });
   usersOverwrite.shift();
-  usersOverwrite.unshift(user)
-  fs.writeFile('users.json', JSON.stringify(usersOverwrite), (err) => {
+  usersOverwrite.unshift(user);
+  fs.writeFile("users.json", JSON.stringify(usersOverwrite), (err) => {
     if (err) {
       throw err;
     }
@@ -112,6 +130,53 @@ myRouter.post("/v1/me/goals/:goalId/accept", function (request, response) {
   return response.end();
 });
 
+myRouter.post("/v1/me/goals/:goalId/achieve", function (request, response) {
+  // Find goal id
+  const goal = goals.find((goal) => {
+    return goal.id == request.params.goalId;
+  });
+
+  // Handle goalId not found
+  if (!goal) {
+    response.statusCode = 400;
+    return response.end(
+      `Error ${response.statusCode}: No goal found with id of ${request.params.goalId}`
+    );
+  }
+
+  // User has already achieved goal
+  if (user.achievedcurlGoals.find((goal) => goal.id == request.params.goalId)) {
+    response.statusCode = 400;
+    return response.end(
+      `Error ${response.statusCode}: User has already achieved goal with id of ${request.params.goalId}`
+    );
+  }
+
+  // Check for goal in user's acceptedGoals and add to achievedGoals if found
+  if (user.acceptedGoals.find((goal) => goal.id == request.params.goalId)) {
+    user.achievedGoals.push(goal);
+    const usersOverwrite = users.map((user) => {
+      return { ...user };
+    });
+    usersOverwrite.shift();
+    usersOverwrite.unshift(user);
+    fs.writeFile("users.json", JSON.stringify(usersOverwrite), (err) => {
+      if (err) {
+        throw err;
+      }
+    });
+
+    // 200 success
+    return response.end();
+  }
+
+  // User does not have goal in acceptedGoals
+  response.statusCode = 400;
+  return response.end(
+    `Error ${response.statusCode}: User has not accepted goal with id of ${request.params.goalId}`
+  );
+});
+
 myRouter.post(
   "/v1/me/goals/:goalId/challenge/:userId",
   function (request, response) {
@@ -119,17 +184,54 @@ myRouter.post(
     let goal = goals.find((goal) => {
       return goal.id == request.params.goalId;
     });
+
     // Find the user who is being challenged in our list of users
     let challengedUser = users.find((user) => {
       return user.id == request.params.userId;
     });
+
     // Make sure the data being changed is valid
     if (!goal) {
       response.statusCode = 400;
-      return response.end("No goal with that ID found.");
+      return response.end(
+        `Error ${response.statusCode}: No goal found with id of ${request.params.goalId}.`
+      );
     }
+
+    // Check for challenged user
+    if (!challengedUser) {
+      response.statusCode = 400;
+      return response.end(
+        `Error ${response.statusCode}: No user found with id of ${request.params.userId}`
+      );
+    }
+
+    // If user has already accepted this goal, achieved this goal, or been challenged to do this goal, do nothing
+    if (
+      challengedUser.challengedGoals.find(
+        (goal) => goal.id == request.params.goalId
+      ) ||
+      challengedUser.acceptedGoals.find(
+        (goal) => goal.id == request.params.goalId
+      ) ||
+      challengedUser.achievedGoals.find((goal) => goal.id == request.params.goalId)
+    ) {
+      // 200 response, but nohing happens because user has already been challenged to do this goal, accepted this goal, or achieved this goal
+      return response.end();
+    }
+
     // Add the goal to the challenged user
     challengedUser.challengedGoals.push(goal);
+    const usersOverwrite = users.map((user) => {
+      return { ...user };
+    });
+    usersOverwrite.filter((user) => user.id !== challengedUser.id);
+    fs.writeFile("users.json", JSON.stringify(usersOverwrite), (err) => {
+      if (err) {
+        throw err;
+      }
+    });
+
     // No response needed other than a 200 success
     return response.end();
   }
