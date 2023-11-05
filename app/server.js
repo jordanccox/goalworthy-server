@@ -292,3 +292,36 @@ myRouter.post(
     return response.end();
   }
 );
+
+// GET categories
+myRouter.get("/v1/categories", function (request, response) {
+  const queryParams = queryString.parse(url.parse(request.url).query);
+
+  // Check categories exist
+  if (categories.length <= 0 || !categories) {
+    response.statusCode = 404;
+    return response.end(`Error ${response.statusCode}: No categories found.`)
+  }
+  
+  if (queryParams.limit) {
+    const limitedCategories = [];
+
+    const maxCategories = Math.min(queryParams.limit, categories.length)
+
+    for (let i = 0; i < maxCategories; i++) {
+      limitedCategories.push(categories[i]);
+    }
+
+    // Check limitedCategories is not empty
+    if (limitedCategories.length <= 0) {
+      response.statusCode = 400;
+      return response.end(`Error ${response.statusCode}: Limit is less than or equal to 0.`)
+    }
+
+    // 200 success
+    return response.end(JSON.stringify(limitedCategories));
+  }
+
+  // 200 success - return list of categories
+  return response.end(JSON.stringify(categories));
+});
